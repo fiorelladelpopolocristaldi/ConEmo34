@@ -20,7 +20,7 @@ the `R/` folder are automatically loaded in the global environment.
 -   `tables/`: contains all tables
 -   `objects/`: contains all objects created by analysis scripts
 -   `R/`: contains all custom functions used in the project
--   `script_visual/auditory`: contains all script to reproduce the
+-   `scripts/script_study1-study2`: contains all script to reproduce the
     analysis:
     -   `*_outliers`: detect and remove relevant outliers
     -   `*_analysis`: the main analysis reported in the paper
@@ -52,8 +52,8 @@ the `R/` folder are automatically loaded in the global environment.
     group (UG = uncertain group and CG = certain group)
 -   `cond`: relevant response required in each trial: exp = Expectancy
     rating, val_arr = Valence/Arousal rating
--   `S1_color`:
--   `cue`:
+-   `S1_color`: The color of the S1 stimulus (red, blue, coral, turquoise)
+-   `cue`: Ambuguitiy of S1 stimulus (Ambiguous, Unambiguous)
 -   `valence`: the valence of the S2 stimulus (Negative and Neutral)
 -   `exprating/valrating/arrating`: response variables: exprating =
     expectancy rating, valrating = valence rating, arrating = arousal
@@ -70,13 +70,14 @@ specific trial.
     group (UG = uncertain group and CG = certain group)
 -   `cond`: relevant response required in each trial: exp = Expectancy
     rating, val_arr = Valence/Arousal rating
--   `S1_color`:
+-   `S1_color`: The color of S1 stimulus (red and blue)
 -   `valence`: the valence of the S2 stimulus (Negative and Neutral)
 -   `exprating/valrating/arrating`: response variables: exprating =
     expectancy rating, valrating = valence rating, arrating = arousal
     rating
--   `RT`:
--   `IUS`:
+-   `RT`: Reaction times to the *Parity Judgement Task*
+-   `IES`: *Inverse Efficency Score* to the *Parity Judgement Task*
+-   `correct`: Accuracy (0 and 1) to the *Parity Judgement Task*
 
 The dataset is organized in long format, where each line is a trial. The
 `cond` variable indicate which response variable is relevant for that
