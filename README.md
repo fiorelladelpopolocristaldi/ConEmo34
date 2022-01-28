@@ -32,14 +32,18 @@ the `R/` folder are automatically loaded in the global environment.
 -   `main_script.R`: is the main script that call each sub-script to run
     the full analysis
 
-## Suggested workflow
+# Suggested workflow
 
 1.  Make sure that *R* and *Rstudio* are up-to-date. Under the *Session
     Info* section is reported the R version used for this project.
-2.  Open the `analysis.Rproj` file. This file automatically load all
-    functions and the `renv` environment. If `renv` is not loaded
-    automatically, use `renv::restore()` and then restart the R session.
-3.  Run the `main_script.R` file. This script can be launched directly
+2.  Install the
+    [`renv`](https://rstudio.github.io/renv/articles/renv.html) package
+    for managing dependencies
+3.  Open the `ConEmo34.Rproj` file
+4.  Use `renv::init()` in order to initialize the project with `renv`
+5.  Use `renv::restore()` in order to install packages from the
+    `renv.lock` file
+6.  Run the `main_script.R` file. This script can be launched directly
     `source("main_script.R")` or each analysis step separately using
     `run_script()`.
 
@@ -52,7 +56,8 @@ the `R/` folder are automatically loaded in the global environment.
     group (UG = uncertain group and CG = certain group)
 -   `cond`: relevant response required in each trial: exp = Expectancy
     rating, val_arr = Valence/Arousal rating
--   `S1_color`: The color of the S1 stimulus (red, blue, coral, turquoise)
+-   `S1_color`: The color of the S1 stimulus (red, blue, coral,
+    turquoise)
 -   `cue`: Ambuguitiy of S1 stimulus (Ambiguous, Unambiguous)
 -   `valence`: the valence of the S2 stimulus (Negative and Neutral)
 -   `exprating/valrating/arrating`: response variables: exprating =
@@ -116,10 +121,10 @@ specific trial.
 
 ``` r
 session_info()
-#> # A tibble: 3 × 2
-#>   Info      Value                       
-#>   <chr>     <chr>                       
-#> 1 R version R version 4.1.1 (2021-08-10)
-#> 2 Platform  x86_64-pc-linux-gnu (64-bit)
-#> 3 OS        Pop!_OS 21.10
+#> # A tibble: 3 x 2
+#>   Info      Value                          
+#>   <chr>     <chr>                          
+#> 1 R version R version 4.1.2 (2021-11-01)   
+#> 2 Platform  x86_64-w64-mingw32/x64 (64-bit)
+#> 3 OS        Windows 10 x64 (build 19044)
 ```
