@@ -45,8 +45,6 @@ the `R/` folder are automatically loaded in the global environment.
     -   `*_paper_figures_tables`: create figures and tables
 -   `renv/`: contains the R environment with all packages version in
     order to reproduce the analysis
--   `main_script.R`: is the main script that call each sub-script to run
-    the full analysis
 
 # Suggested workflow
 
@@ -55,7 +53,7 @@ the `R/` folder are automatically loaded in the global environment.
 3. Open the `ConEmo34.Rproj` file
 4. Use `renv::init()` in order to initialize the project with `renv`
 5. Use `renv::restore()` in order to install packages from the `renv.lock` file
-6. Run the `main_script.R` file. This script can be launched directly `source("main_script.R")` or each analysis step separately using `run_script()`.
+6. Run each script for reproducing the analysis
 
 # Dataset description
 
