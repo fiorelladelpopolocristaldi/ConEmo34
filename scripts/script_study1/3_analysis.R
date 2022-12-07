@@ -4,6 +4,8 @@
 ## Script: Preregisterd Analysis
 ## ------------------------------------------------------------------------
 
+rm(list = ls())
+
 # Packages ----------------------------------------------------------------
 
 library(tidyverse)
@@ -20,11 +22,9 @@ library(emmeans)
 
 emm_options(lmerTest.limit = 10000) # for t-test in emmeans
 
-study <- "study1"
-
 # Data --------------------------------------------------------------------
 
-dat <- read_rds(here("data", study, "data_no_outlier.rds"))
+dat <- read_rds("data/study1/data_no_outlier.rds")
 
 # Modelling ---------------------------------------------------------------
 
@@ -44,9 +44,14 @@ dat_val_arr <- dat %>% filter(cond == "val_arr")
 fit_exp <- lmer(exprating ~ group * cue + (cue|workerId), 
                 data = dat_exp, 
                 na.action = na.fail)
+
 fit_val <- lmer(valrating ~ group * cue * valence + (valence|workerId), 
                 data = dat_val_arr,  
                 na.action = na.fail)
+
+
+MuMIn::r.squaredGLMM(fit_exp, fit_exp0)
+MuMIn::r.squaredGLMM(fit_exp)
 
 mods <- list(
     fit_exp = fit_exp,
@@ -71,7 +76,6 @@ confint_mods <- map(mods, function(mod) confint(mod, level = 0.95, method = "Wal
 
 anova_models <- map(mods, tidy_anova)
 
-
 # R2 ----------------------------------------------------------------------
 
 r2_models <- map(mods, MuMIn::r.squaredGLMM)
@@ -86,4 +90,4 @@ prereg_list <- list(
     r2_models = r2_models
 )
 
-saveRDS(prereg_list, file = here("objects", study, "prereg_list.rds"))
+saveRDS(prereg_list, file = "objects/study1/prereg_list.rds")

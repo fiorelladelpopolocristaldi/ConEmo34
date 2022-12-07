@@ -4,6 +4,8 @@
 ## Script: Preregistered Analysis
 ## ------------------------------------------------------------------------
 
+rm(list = ls())
+
 # Packages ----------------------------------------------------------------
 
 library(tidyverse)
@@ -14,15 +16,15 @@ library(broom.mixed)
 library(emmeans)
 library(here)
 
+devtools::load_all()
+
 # Environment -------------------------------------------------------------
 
 emm_options(lmerTest.limit = 10000) # for t-test in emmeans
 
-study <- "study2"
-
 # Data --------------------------------------------------------------------
 
-dat <- read_rds(here("data", study, "data_no_outlier.rds"))
+dat <- read_rds("data/study2/data_no_outlier.rds")
 
 # Modelling ---------------------------------------------------------------
 
@@ -78,6 +80,9 @@ mods <- list(
 )
 
 # Post-Hoc Contrast -------------------------------------------------------
+
+# effect size are not valid for binomial model, just using the same
+# function for easiness
 
 post_fit_IES <- get_contrast_and_effect_size(mods$fit_IES, term = "group")
 post_fit_acc <- get_contrast_and_effect_size(mods$fit_acc, term = "group")

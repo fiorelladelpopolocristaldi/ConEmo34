@@ -4,6 +4,8 @@
 ## Script: Figures and Tables
 ## ------------------------------------------------------------------------
 
+rm(list = ls())
+
 # Packages ----------------------------------------------------------------
 
 library(tidyverse)
@@ -17,10 +19,9 @@ library(flextable)
 library(officer)
 library(here)
 library(emmeans)
+library(ftExtra)
 
-# Environment -------------------------------------------------------------
-
-study <- "study1"
+devtools::load_all()
 
 # Functions ----------------------------------------------------------------
 
@@ -30,10 +31,10 @@ save_table <- function(tab, prop, name){
 
 # Loading -----------------------------------------------------------------
 
-prereg_list <- readRDS(here("objects", study, "prereg_list.rds"))
-expl_list <- readRDS(here("objects", study, "expl_list.rds"))
+prereg_list <- readRDS("objects/study1/prereg_list.rds")
+expl_list <- readRDS("objects/study1/expl_list.rds")
 
-dat <- readRDS(here("data", study, "data_no_outlier.rds"))
+dat <- readRDS("data/study1/data_no_outlier.rds")
 dat_exp <- dat %>% filter(cond == "exp")
 dat_val_arr <- dat %>% filter(cond == "val_arr")
 
@@ -74,9 +75,9 @@ all_table_mod <- all_table %>%
 all_table_mod %>% 
   select(tidy) %>% 
   unnest(tidy) %>% 
-  filter(mod %in% c("fit_exp", "fit_val")) %>% 
+  #filter(mod %in% c("fit_exp", "fit_val", "fit_exp_color")) %>% 
   model_table() %>% 
-  save_table(sect_properties, here("tables", study, "table_mod_paper.docx"))
+  save_table(sect_properties, "tables/study1/table_mod_paper.docx")
 
 # Anova
 
@@ -92,6 +93,7 @@ saveRDS(all_table_mod, file = here("objects", study, "mod_paper.rds"))
 
 eff_exp <- get_effects(all_table$models$mod_list$fit_exp,
                            y = exprating, workerId, group, cue)
+
 eff_val <- get_effects(all_table$models$mod_list$fit_val,
                            y = valrating, workerId, group, cue, valence)
 eff_arr <- get_effects(all_table$models$mod_list$fit_arr,

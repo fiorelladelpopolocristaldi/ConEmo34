@@ -4,6 +4,8 @@
 ## Script: Figures and Tables
 ## ------------------------------------------------------------------------
 
+rm(list = ls())
+
 # Packages ----------------------------------------------------------------
 
 library(tidyverse)
@@ -15,9 +17,7 @@ library(flextable)
 library(officer)
 library(here)
 
-# Setup -------------------------------------------------------------------
-
-study <- "study2"
+devtools::load_all()
 
 # Functions ----------------------------------------------------------------
 
@@ -27,9 +27,8 @@ save_table <- function(tab, prop, name){
 
 # Loading -----------------------------------------------------------------
 
-prereg_list <- readRDS(here("objects", study, "prereg_list.rds"))
-
-dat <- readRDS(here("data", study, "data_no_outlier.rds"))
+prereg_list <- readRDS("objects/study2/prereg_list.rds")
+dat <- readRDS("data/study2/data_no_outlier.rds")
 
 dat_learn_RT <- dat %>% 
     filter(cond == "learning",
@@ -38,7 +37,6 @@ dat_learn_RT <- dat %>%
     mutate(logIES=log(IES)) # log-transform IES
 
 dat_exp <- dat %>% dplyr::filter(cond == "exp")
-
 dat_val_arr <- dat %>% dplyr::filter(cond == "val_arr")
 
 # Creating custom lists
@@ -49,7 +47,6 @@ mod_list <- c(
     fit_exp = prereg_list$mods$fit_exp,
     fit_val = prereg_list$mods$fit_val,
     fit_arr = prereg_list$mods$fit_arr
-    
 )
 
 all_mods <- list(mod_list = mod_list)
@@ -76,7 +73,7 @@ all_table_mod <- all_table %>%
            tidy = map(tidy, bind_rows, .id = "mod"),
            table = map(tidy, model_table),
            save_names = str_remove(names, "mod_list_"),
-           save_names = file.path("tables", study, "mod_table_paper.docx"))
+           save_names = file.path("tables/study2/mod_table_paper.docx"))
 
 # Anova
 
@@ -87,8 +84,8 @@ all_table_anova <- all_table %>%
 
 save_table(all_table_mod$table$mod_list, sect_properties, all_table_mod$save_names)
 
-saveRDS(all_table_anova, file = here("objects", study, "anova_paper.rds"))
-saveRDS(all_table_mod, file = here("objects", study, "mod_paper.rds"))
+saveRDS(all_table_anova, file = "objects/study2/anova_paper.rds")
+saveRDS(all_table_mod, file = "objects/study2/mod_paper.rds")
 
 # Figures -----------------------------------------------------------------
 
@@ -102,7 +99,7 @@ eff_arr <- get_effects(all_table$models$mod_list$fit_arr,
                        y = arrating, workerId, group, valence)
 
 dat_plot <- bind_rows(eff_exp, eff_val, eff_arr) %>%
-    clean_names_plot(., study = study) %>%
+    clean_names_plot(., study = "study2") %>%
     unite(cond, valence, s1_color, sep = "") %>% 
     mutate(cond = str_remove_all(cond, "NA"))
 
@@ -110,8 +107,8 @@ plot_effects <- box_plot(dat_plot, cond)
 
 # Saving
 
-plot_name <- here::here(file.path("figures", study, "plot_paper.png"))
+plot_name <- file.path("figures/study2/plot_paper2.png")
 
 cowplot::save_plot(plot_name, plot_effects, base_height = 6)
 
-saveRDS(plot_effects, file = here("objects", study, "plot_paper.rds"))
+saveRDS(plot_effects, file = "objects/study2/plot_paper.rds")

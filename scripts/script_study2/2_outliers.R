@@ -1,8 +1,10 @@
 ## ------------------------------------------------------------------------
-## Project: ConEmo34 - Experiment 1
+## Project: ConEmo34 - Experiment 2
 ##
 ## Script: Outliers
 ## ------------------------------------------------------------------------
+
+rm(list = ls())
 
 # Packages ----------------------------------------------------------------
 
@@ -13,41 +15,58 @@ library(tidyverse)
 library(Routliers)
 library(here)
 
-# Environment -------------------------------------------------------------
-
-study <- "study1"
+devtools::load_all()
 
 # Loading Data ------------------------------------------------------------
 
-dat <- read_rds(here("data", study, "data_cleaned.rds"))
+dat <- read_rds("data/study2/data_cleaned.rds")
+
+# Subsetting data 1
+
+dat_learn <- dat %>% filter(cond == "learning")
 
 # General Parameters ------------------------------------------------------
 
 threshold_mad <- 3 # threshold for MAD
 threshold_mcd <- 0.25 # threshold for MCD
 cut_off_cook <- 1 # cut off for cook distances
+acc_low <- -1*(mean(dat_learn$correct)-2*sd(dat_learn$correct)) # cut off acc -2SD (*-1 adj sign)
 
-# Fitting Pre-Registration Models ------------------------------------------
+# Parity judgement task ---------------------------------------------------
+
+a <- dat_learn %>% 
+    group_by(workerId) %>% 
+    summarise(acc=mean(correct)) %>% 
+    mutate(out=acc < acc_low) # identify sbj w/ < 2SD acc
+
+b <- as.vector(unique(a$workerId[a$out==T])) # 7 subjects to discard
+
+dat <- dat %>% 
+    filter(!workerId %in% b)
+
+# Fitting Pre-Registraton Models ------------------------------------------
+
+# Subsetting data
+
+dat_exp <- dat %>% filter(cond == "exp")
+dat_val_arr <- dat %>% filter(cond == "val_arr")
 
 # Effect coding
 
 contrasts(dat$group) <- c(0.5, -0.5)
 contrasts(dat$valence) <- c(0.5, -0.5)
-contrasts(dat$cue) <- c(0.5, -0.5)
-
-# Data for models
-
-dat_exp <- dat %>% filter(cond == "exp")
-dat_val_arr <- dat %>% filter(cond == "val_arr")
+contrasts(dat$s1_color) <- c(0.5, -0.5)
 
 # Fit
 
-fit_exp <- lmer(exprating ~ group * cue + (cue|workerId), data = dat_exp)
-fit_val <- lmer(valrating ~ group * cue * valence + (valence|workerId), data = dat_val_arr)
+fit_exp <- lmer(exprating ~ group * s1_color + (s1_color|workerId), data = dat_exp, na.action = na.fail)
+fit_val <- lmer(valrating ~ group * valence + (valence|workerId), data = dat_val_arr,  na.action = na.fail)
+fit_arr <- lmer(arrating ~ group * valence + (valence|workerId), data = dat_val_arr,  na.action = na.fail)
 
 mods <- list(
     fit_exp = fit_exp,
-    fit_val = fit_val
+    fit_val = fit_val,
+    fit_arr = fit_arr
 )
 
 # MAD and MCD -------------------------------------------------------------
@@ -57,17 +76,17 @@ mods <- list(
 
 dat %>% 
     filter(cond == "exp") %>% 
-    select(workerId, exprating, cue) -> temp_exp
+    select(workerId, exprating, s1_color) -> temp_exp
 
 dat %>% 
     filter(cond == "val_arr") %>% 
     group_by(workerId, valence) -> temp_val_arr
 
 temp_exp %>% 
-    group_by(workerId, cue) %>% 
+    group_by(workerId, s1_color) %>% 
     summarise(exprating = mean(exprating)) %>% 
-    mutate(cue = paste0("exprating_", cue)) %>% 
-    pivot_wider(names_from = cue, values_from = exprating) %>% 
+    mutate(s1_color = paste0("exprating_", s1_color)) %>% 
+    pivot_wider(names_from = s1_color, values_from = exprating) %>% 
     ungroup() -> out_data_exp
     
 temp_val_arr %>% 
@@ -125,7 +144,7 @@ cook_list <- map(mods, function(mod) get_cook_table(mod, "workerId")) # get infl
 cook_table <- bind_rows(cook_list, .id = "mod")
 
 cook_table <- cook_table %>%
-  mutate(out = ifelse(cook > cut_off_cook, TRUE, FALSE))
+    mutate(out = ifelse(cook > cut_off_cook, TRUE, FALSE))
 
 # Visualizing outliers ----------------------------------------------------
 
@@ -147,17 +166,19 @@ filter_outliers <- function(out_data, resp = "all"){
 
 dat %>% 
     filter(cond == "exp") %>% 
-    group_by(workerId, cue, group) %>% 
+    group_by(workerId, s1_color, group) %>% 
     summarise(exprating = mean(exprating)) %>% 
     ungroup() %>% 
     mutate(out = ifelse(workerId %in% filter_outliers(out_mad, "exprating")$workerId,
                         "yes",
                         "no")) %>% 
-    ggplot(aes(x = cue, color = out, y = exprating, group = workerId, label = workerId)) +
+    ggplot(aes(x = s1_color, color = out, y = exprating, group = workerId, label = workerId)) +
     geom_point(size = 3, alpha = 0.8) +
     geom_text(aes(label = workerId), hjust = 0, vjust = 0) +
     geom_line(alpha = 0.4, size = 1) +
     facet_wrap(~group)
+
+# N = 3, OK
 
 dat %>% 
     filter(cond == "val_arr") %>% 
@@ -173,6 +194,8 @@ dat %>%
     geom_line(alpha = 0.4, size = 1) +
     facet_wrap(~group)
 
+# N = 0, OK
+
 dat %>% 
     filter(cond == "val_arr") %>% 
     group_by(workerId, valence, group) %>% 
@@ -186,6 +209,8 @@ dat %>%
     geom_text(aes(label = workerId), hjust = 0, vjust = 0) +
     geom_line(alpha = 0.4, size = 1) +
     facet_wrap(~group)
+
+# N = 1, OK [+ visual inspection N = 2, workerIds 15565, 15639]
 
 filter_outliers_mcd <- function(out_data, resp = "all"){
     
@@ -203,13 +228,13 @@ filter_outliers_mcd <- function(out_data, resp = "all"){
     
 }
 
-dat %>% 
+dat %>%
     filter(cond == "val_arr") %>% 
     group_by(workerId, valence, group) %>% 
     summarise(valrating = mean(valrating),
               arrating = mean(arrating)) %>% 
     ungroup() %>% 
-    mutate(out = ifelse(workerId %in% filter_outliers_mcd(out_mcd, c("val_arr_neg", "val_arr_neu"))$workerId,
+    mutate(out = ifelse(workerId %in% filter_outliers_mcd(out_mcd)$workerId,
                         "yes",
                         "no")) %>% 
     ggplot(aes(x = valrating, color = out, y = arrating, group = workerId, label = workerId)) +
@@ -218,18 +243,27 @@ dat %>%
     geom_line(alpha = 0.4, size = 1) +
     facet_wrap(~group)
 
+# 15639, 15565 OK
+
 # Excluding outliers from dataset -----------------------------------------
 
 dat_no_out <- dat %>% 
     filter(!(workerId %in% filter_outliers(out_mad)$workerId)) # exclude all outliers detected with MAD
 
+# additional outliers detected with MCD
+
+out_manual <- c("15639", "15565")
+
+dat_no_out <- dat_no_out %>% 
+    filter(!(workerId %in% out_manual)) # exclude outliers confirmed by visual inspection
+
 # Saving ------------------------------------------------------------------
 
 outliers <- list(
-  out_mad = out_mad,
-  out_mcd = out_mcd,
-  cook_table = cook_table
+    out_mad = out_mad,
+    out_mcd = out_mcd,
+    cook_table = cook_table
 )
 
-saveRDS(outliers, here("objects", study, "prereg_outliers.rds"))
-saveRDS(dat_no_out, here("data", study, "data_no_outlier.rds"))
+saveRDS(outliers, "objects/study2/prereg_outliers.rds")
+saveRDS(dat_no_out, "data/study2/data_no_outlier.rds")

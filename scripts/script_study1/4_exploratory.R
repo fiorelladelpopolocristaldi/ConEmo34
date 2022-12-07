@@ -4,6 +4,8 @@
 ## Script: Exploratory Analysis
 ## ------------------------------------------------------------------------
 
+rm(list = ls())
+
 # Packages ----------------------------------------------------------------
 
 library(tidyverse)
@@ -16,8 +18,6 @@ library(broom.mixed)
 
 # Environment -------------------------------------------------------------
 
-study = "study1"
-
 # Functions ---------------------------------------------------------------
 
 set_sum_contrast <- function(fac){
@@ -26,19 +26,22 @@ set_sum_contrast <- function(fac){
 
 # Data --------------------------------------------------------------------
 
-dat <- read_rds(here("data", study, "data_no_outlier.rds"))
+dat <- read_rds("data/study1/data_no_outlier.rds")
 
 # Modelling ---------------------------------------------------------------
-
-# Effect coding
-
-contrasts(dat$group) <- set_sum_contrast(dat$group)
-contrasts(dat$s1_color) <- set_sum_contrast(dat$s1_color)
 
 # Data for models
 
 dat_exp <- dat %>% filter(cond == "exp")
 dat_val_arr <- dat %>% filter(cond == "val_arr")
+
+# anova-like coding for better parameters 
+# with more than 2 levels 
+# see https://debruine.github.io/faux/articles/contrasts.html#anova
+
+dat_exp <- dat_exp %>% 
+  add_contrast(., "group", "anova") %>% 
+  add_contrast(., "s1_color", "anova")
 
 # Cue -----------------------------------------------------------------------
 
@@ -52,7 +55,6 @@ fit_exp_color <- lmer(exprating ~ group * s1_color + (s1_color|workerId),
                 data = dat_exp,  
                 na.action = na.fail)
 
-
 # Model List --------------------------------------------------------------
 
 mods <- list(
@@ -65,7 +67,6 @@ post_hoc_effsize <- list(fit_exp_color = get_contrast_and_effect_size(fit_exp_co
 # Anova --------------------------------------------------------------
 
 anova_models <- map(mods, tidy_anova)
-
 
 # R2 ----------------------------------------------------------------------
 
@@ -87,4 +88,4 @@ expl_list <- list(
 
 # Saving ------------------------------------------------------------------
 
-saveRDS(expl_list, file = here("objects", study, "expl_list.rds"))
+saveRDS(expl_list, file = "objects/study1/expl_list.rds")
