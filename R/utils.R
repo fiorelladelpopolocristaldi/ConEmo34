@@ -29,27 +29,6 @@ format_pkgs_readme <- function(){
   
 }
 
-# run_script --------------------------------------------------------------
-
-# This function run a single analysis step and clean the environment at the end
-
-run_script <- function(file, analysis = c("study1", "study2")){
-  
-  fun_name <- deparse(substitute(file))
-  
-  analysis = match.arg(analysis)
-  
-  suppressMessages(
-    suppressWarnings(
-      source(here::here("scripts", paste0("script_", analysis), file))
-      ))
-  
-  clean_env() # clean everything
-  
-  cli::cli_alert_success(paste(fun_name, "finished!"))
-  
-}
-
 # clean_env ---------------------------------------------------------------
 
 # wrapper for cleaning the global environment when calling a function
