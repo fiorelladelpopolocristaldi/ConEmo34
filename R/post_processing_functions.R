@@ -53,13 +53,26 @@ prep_names_model <- function(tidy_mod){
                              
                              term == "group1:cue1:valence1" ~ "group x cue x valence",
                              
-                             # Variance
+                             # variance
                              
                              term == "sd__(Intercept)" ~ paste0("\u03C3", " ID"),
                              term == "sd__Observation" ~ paste0("\u03C3", " residual"),
                              term == "sd__valence1" ~ paste0("\u03C3", " valence"),
                              term == "sd__cue1" ~ paste0("\u03C3", " cue"),
                              term == "sd__s1_color1" ~ paste0("\u03C3", " S1 color"),
+                             
+                             # anova-like contrasts
+                             
+                             term == "group.UG-CG" ~ "UG - CG",
+                             term == "s1_color.coral-blue" ~ "Coral - Blue",
+                             term == "s1_color.red-blue" ~ "Red - Blue",
+                             term == "s1_color.turquoise-blue" ~ "Turquoise - Blue",
+                             term == "group.UG-CG:s1_color.coral-blue" ~ "UG - CG x Coral - Blue",
+                             term == "group.UG-CG:s1_color.red-blue" ~ "UG - CG x Red - Blue",
+                             term == "group.UG-CG:s1_color.turquoise-blue" ~ "UG - CG x Red - Blue",
+                             term == "sd__s1_color.coral-blue" ~ paste("\u03C3", "Coral - Blue"),
+                             term == "sd__s1_color.red-blue" ~ paste("\u03C3", "Red - Blue"),
+                             term == "sd__s1_color.turquoise-blue" ~ paste("\u03C3", "Turquoise - Blue"),
                              
                              TRUE ~ term),
             p.value = ifelse(p.value < 0.001, "< 0.001", as.character(round(p.value, 3)))) %>%
@@ -128,7 +141,8 @@ model_table <- function(data){
         merge_h(part = "header") %>%
         align(align = "center", part = "all") %>%
         autofit() %>%
-        flextable::fontsize(part = "all", size = 8)
+        flextable::fontsize(part = "all", size = 8) %>% 
+      ftExtra::colformat_md(part = "all")
 }
 
 # anova_table -------------------------------------------------------------
@@ -160,15 +174,15 @@ anova_table <- function(data){
 # lazy evaluation
 
 get_effects <- function(fit, y,...){
-    eff_fit <- effects::allEffects(fit)[[1]] %>% data.frame()
-    dat <- fit@frame
+    #eff_fit <- effects::allEffects(fit)[[1]] %>% data.frame()
+    data <- fit@frame
     dots <- rlang::enexprs(...)
     dots_join <- dots[dots %in% c("group", "s1_color", "valence", "block", "Cong", "cue")]
     y <- rlang::enexpr(y)
-    dat %>%
+    data %>%
         group_by(!!!dots) %>%
         summarise(.mean = mean(!!y)) %>%
-        left_join(., eff_fit, by = sapply(dots_join, as.character)) %>%
+        #left_join(., eff_fit, by = sapply(dots_join, as.character)) %>%
         ungroup() %>%
         mutate(resp = as.character(quote(!!y)))
 }
