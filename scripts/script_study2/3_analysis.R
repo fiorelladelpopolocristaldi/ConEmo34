@@ -120,4 +120,4 @@ prereg_list <- list(
     r2_models = r2_models
 )
 
-saveRDS(prereg_list, file = here("objects", study, "prereg_list.rds"))
+saveRDS(prereg_list, file = "objects/study2/prereg_list.rds")

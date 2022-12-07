@@ -86,8 +86,8 @@ all_table_anova <- all_table %>%
 
 # Saving
 
-saveRDS(all_table_anova, file = here("objects", study, "anova_paper.rds"))
-saveRDS(all_table_mod, file = here("objects", study, "mod_paper.rds"))
+saveRDS(all_table_anova, file = "objects/study1/anova_paper.rds")
+saveRDS(all_table_mod, file = "objects/study1/mod_paper.rds")
 
 # Figures -----------------------------------------------------------------
 
@@ -100,7 +100,7 @@ eff_arr <- get_effects(all_table$models$mod_list$fit_arr,
                            y = arrating, workerId, group, cue, valence)
 
 dat_plot <- bind_rows(eff_exp, eff_val, eff_arr) %>%
-    clean_names_plot(study) %>%
+    clean_names_plot("study1") %>%
     unite(cond, valence, cue, sep = "")
 
 plot_effects <- box_plot(dat_plot, cond) +
@@ -108,8 +108,8 @@ plot_effects <- box_plot(dat_plot, cond) +
 
 # Saving
 
-plot_name <- here::here(file.path("figures", study, "plot_paper.png"))
+plot_name <- file.path("figures/study1/plot_paper.png")
 
 cowplot::save_plot(plot_name, plot_effects, base_height = 6)
 
-saveRDS(plot_effects, file = here("objects", study, "plot_paper.rds"))
+saveRDS(plot_effects, file = "objects/study1/plot_paper.rds")

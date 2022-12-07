@@ -107,7 +107,7 @@ plot_effects <- box_plot(dat_plot, cond)
 
 # Saving
 
-plot_name <- file.path("figures/study2/plot_paper2.png")
+plot_name <- file.path("figures/study2/plot_paper.png")
 
 cowplot::save_plot(plot_name, plot_effects, base_height = 6)
 

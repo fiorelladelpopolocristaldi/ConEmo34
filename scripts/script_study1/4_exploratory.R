@@ -15,6 +15,7 @@ library(effects)
 library(emmeans)
 library(broom)
 library(broom.mixed)
+library(faux)
 
 devtools::load_all()
 
