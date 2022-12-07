@@ -16,13 +16,7 @@ library(emmeans)
 library(broom)
 library(broom.mixed)
 
-# Environment -------------------------------------------------------------
-
-# Functions ---------------------------------------------------------------
-
-set_sum_contrast <- function(fac){
-  contr.sum(length(levels(fac)))
-}
+devtools::load_all()
 
 # Data --------------------------------------------------------------------
 
