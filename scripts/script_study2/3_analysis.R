@@ -68,7 +68,7 @@ fit_val <- lmer(valrating ~ group * valence + (valence|workerId),
                 na.action = na.fail)
 
 fit_arr <- lmer(arrating ~ group * valence + (valence|workerId), 
-                data = dat_val_arr,  
+                data = dat_val_arr,   
                 na.action = na.fail)
 
 mods <- list(
