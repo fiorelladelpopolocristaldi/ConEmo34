@@ -102,16 +102,18 @@ dat_plot <- bind_rows(eff_exp, eff_val, eff_arr) %>%
   mutate(cond = ifelse(is.na(valence) & resp == "exprating",
                        as.character(s1_color), 
                        as.character(valence)),
-         cond = case_when(resp == "exprating" & cond == "neg" ~ "Cue~red~",
-                          resp == "exprating" & cond == "neu" ~ "Cue~blue~",
+         cond = case_when(resp == "exprating" & cond == "neg" ~ "Cue~neg~",
+                          resp == "exprating" & cond == "neu" ~ "Cue~neu~",
                           resp != "exprating" & cond == "neu" ~ "S2~neu~",
                           resp != "exprating" & cond == "neg" ~ "S2~neg~",
                           TRUE ~ cond),
          resp = factor(resp))
 
-dat_plot$resp <- factor(dat_plot$resp, levels = c("exprating", "valrating", "arrating"))
-
 plot_effects <- dat_plot %>% 
+  mutate(resp = case_when(resp == "exprating" ~ "Expectancy",
+                          resp == "valrating" ~ "Valence",
+                          resp == "arrating" ~ "Arousal"),
+         resp = factor(resp, levels = c("Expectancy", "Valence", "Arousal"))) %>% 
   ggplot(aes(x = cond, y = .mean, fill = group)) +
   geom_point(aes(color = group),
              position=position_jitterdodge(jitter.width = 0.4, jitter.height = 0)) +
