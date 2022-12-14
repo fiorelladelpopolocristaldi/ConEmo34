@@ -22,7 +22,7 @@ devtools::load_all()
 # Functions ----------------------------------------------------------------
 
 save_table <- function(tab, prop, name){
-    save_as_docx(tab, path = name, pr_section = prop)
+  save_as_docx(tab, path = name, pr_section = prop)
 }
 
 # Loading -----------------------------------------------------------------
@@ -31,10 +31,10 @@ prereg_list <- readRDS("objects/study2/prereg_list.rds")
 dat <- readRDS("data/study2/data_no_outlier.rds")
 
 dat_learn_RT <- dat %>% 
-    filter(cond == "learning",
-           RT %in% (100:1500), # trimming RTs
-           correct=="1") %>%  # keep only correct trials
-    mutate(logIES=log(IES)) # log-transform IES
+  filter(cond == "learning",
+         RT %in% (100:1500), # trimming RTs
+         correct=="1") %>%  # keep only correct trials
+  mutate(logIES=log(IES)) # log-transform IES
 
 dat_exp <- dat %>% dplyr::filter(cond == "exp")
 dat_val_arr <- dat %>% dplyr::filter(cond == "val_arr")
@@ -42,44 +42,44 @@ dat_val_arr <- dat %>% dplyr::filter(cond == "val_arr")
 # Creating custom lists
 
 mod_list <- c(
-    fit_IES = prereg_list$mods$fit_IES,
-    fit_acc = prereg_list$mods$fit_acc,
-    fit_exp = prereg_list$mods$fit_exp,
-    fit_val = prereg_list$mods$fit_val,
-    fit_arr = prereg_list$mods$fit_arr
+  fit_IES = prereg_list$mods$fit_IES,
+  fit_acc = prereg_list$mods$fit_acc,
+  fit_exp = prereg_list$mods$fit_exp,
+  fit_val = prereg_list$mods$fit_val,
+  fit_arr = prereg_list$mods$fit_arr
 )
 
 all_mods <- list(mod_list = mod_list)
 
 all_table <- tibble(
-    models = all_mods,
-    names = names(all_mods)
+  models = all_mods,
+  names = names(all_mods)
 )
 
 # Tables -------------------------------------------------------------------
 
 sect_properties <- prop_section(
-    page_size = page_size(orient = "landscape",
-                          width = 8.3, height = 11.7),
-    type = "continuous",
-    page_margins = page_mar()
+  page_size = page_size(orient = "landscape",
+                        width = 8.3, height = 11.7),
+  type = "continuous",
+  page_margins = page_mar()
 )
 
 # Models
 
 all_table_mod <- all_table %>%
-    mutate(tidy = map_depth(models, tidy_fit, .depth = 2),
-           tidy = map_depth(tidy, prep_names_model, .depth = 2),
-           tidy = map(tidy, bind_rows, .id = "mod"),
-           table = map(tidy, model_table),
-           save_names = str_remove(names, "mod_list_"),
-           save_names = file.path("tables/study2/mod_table_paper.docx"))
+  mutate(tidy = map_depth(models, tidy_fit, .depth = 2),
+         tidy = map_depth(tidy, prep_names_model, .depth = 2),
+         tidy = map(tidy, bind_rows, .id = "mod"),
+         table = map(tidy, model_table),
+         save_names = str_remove(names, "mod_list_"),
+         save_names = file.path("tables/study2/mod_table_paper.docx"))
 
 # Anova
 
 all_table_anova <- all_table %>% 
-    mutate(tidy = map_depth(models, tidy_anova, .depth = 2))
-          
+  mutate(tidy = map_depth(models, tidy_anova, .depth = 2))
+
 # Saving
 
 save_table(all_table_mod$table$mod_list, sect_properties, all_table_mod$save_names)
@@ -99,11 +99,29 @@ eff_arr <- get_effects(all_table$models$mod_list$fit_arr,
                        y = arrating, workerId, group, valence)
 
 dat_plot <- bind_rows(eff_exp, eff_val, eff_arr) %>%
-    clean_names_plot(., study = "study2") %>%
-    unite(cond, valence, s1_color, sep = "") %>% 
-    mutate(cond = str_remove_all(cond, "NA"))
+  mutate(cond = ifelse(is.na(valence) & resp == "exprating",
+                       as.character(s1_color), 
+                       as.character(valence)),
+         cond = case_when(resp == "exprating" & cond == "neg" ~ "Cue~red~",
+                          resp == "exprating" & cond == "neu" ~ "Cue~blue~",
+                          resp != "exprating" & cond == "neu" ~ "S2~neu~",
+                          resp != "exprating" & cond == "neg" ~ "S2~neg~",
+                          TRUE ~ cond),
+         resp = factor(resp))
 
-plot_effects <- box_plot(dat_plot, cond)
+dat_plot$resp <- factor(dat_plot$resp, levels = c("exprating", "valrating", "arrating"))
+
+plot_effects <- dat_plot %>% 
+  ggplot(aes(x = cond, y = .mean, fill = group)) +
+  geom_point(aes(color = group),
+             position=position_jitterdodge(jitter.width = 0.4, jitter.height = 0)) +
+  geom_boxplot(outlier.shape=NA, alpha = 0.7) +
+  facet_wrap(~resp, scales = "free_x") +
+  theme_paper() +
+  theme(axis.text.x = ggtext::element_markdown()) +
+  scale_color_manual(name = "", values=c("#4DCA87", "#F09A0F")) +
+  scale_fill_manual(name = "", values=c("#4DCA87", "#F09A0F")) +
+  ylab("Rating (%)")
 
 # Saving
 
