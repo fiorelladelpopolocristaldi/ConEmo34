@@ -19,10 +19,7 @@ knitr::opts_chunk$set(
 
 # Repository
 
-This is the repository for the analysis script of the paper *The role of
-implicit learning and cue ambiguity on the subjective experience of
-affective predictions: a follow-up behavioral investigation*. This
-folder allows to fully reproduce the analysis reported in the paper, and
+This is the repository for the analysis script of the paper *How previous experience shapes future affective subjective ratings: a follow-up study investigating implicit learning and cue ambiguity*. This folder allows to fully reproduce the analysis reported in the paper, and
 producing tables, figures and the supplementary materials.
 
 # Folder’s organization
