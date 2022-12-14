@@ -40,13 +40,13 @@ prep_names_model <- function(tidy_mod){
                              term == "group1" ~ "UG - CG",
                              term == "cue1" ~ "Amb - Unamb",
                              term == "valence1" ~ "neg - neu",
-                             term == "s1_color1" ~ "blue - red",
+                             term == "s1_color1" ~ "cue~neg~ - cue~neu~",
                              
                              # 2 way interactions
                              
                              term == "group1:cue1" ~ "group x cue",
                              term == "group1:valence1" ~ "valence x group",
-                             term == "group1:s1_color1" ~ "color x group",
+                             term == "group1:s1_color1" ~ "cue x group",
                              term == "cue1:valence1" ~ "cue x valence",
                              
                              # 3 way interactions
@@ -59,7 +59,7 @@ prep_names_model <- function(tidy_mod){
                              term == "sd__Observation" ~ paste0("\u03C3", " residual"),
                              term == "sd__valence1" ~ paste0("\u03C3", " valence"),
                              term == "sd__cue1" ~ paste0("\u03C3", " cue"),
-                             term == "sd__s1_color1" ~ paste0("\u03C3", " S1 color"),
+                             term == "sd__s1_color1" ~ paste0("\u03C3", " cue"),
                              
                              # anova-like contrasts
                              
