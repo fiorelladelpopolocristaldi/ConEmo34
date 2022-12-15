@@ -49,8 +49,6 @@ fit_val <- lmer(valrating ~ group * cue * valence + (valence|workerId),
                 data = dat_val_arr,  
                 na.action = na.fail)
 
-
-MuMIn::r.squaredGLMM(fit_exp, fit_exp0)
 MuMIn::r.squaredGLMM(fit_exp)
 
 mods <- list(
