@@ -69,7 +69,7 @@ prep_names_model <- function(tidy_mod){
                              term == "s1_color.turquoise-blue" ~ "Turquoise - Blue",
                              term == "group.UG-CG:s1_color.coral-blue" ~ "UG - CG x Coral - Blue",
                              term == "group.UG-CG:s1_color.red-blue" ~ "UG - CG x Red - Blue",
-                             term == "group.UG-CG:s1_color.turquoise-blue" ~ "UG - CG x Red - Blue",
+                             term == "group.UG-CG:s1_color.turquoise-blue" ~ "UG - CG x Turquoise - Blue",
                              term == "sd__s1_color.coral-blue" ~ paste("\u03C3", "Coral - Blue"),
                              term == "sd__s1_color.red-blue" ~ paste("\u03C3", "Red - Blue"),
                              term == "sd__s1_color.turquoise-blue" ~ paste("\u03C3", "Turquoise - Blue"),
